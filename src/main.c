@@ -12,6 +12,7 @@
  *
  *         Author:  Francis Sowani <fts215@nyu.edu>
  *         Author:  Wei-Chung Lin <wcl262@nyu.edu>
+ *		   Noha Alfergani
  *     Supervisor:  Prof. Ozgur Sinanoglu <os22@nyu.edu>
  *     Supervisor:  Samah Saeed <sms22@nyu.edu>
  *   Organization:  New York University Abu Dhabi
