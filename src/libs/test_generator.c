@@ -426,7 +426,7 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
  *  @param  int 	tpCount - current test patterns generated
  *  @return nothing
  */
-void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv, int tpCount)
+void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv, int tpCount) //Modify this to pass the second vector and display it
 {
 	if(options.isDebugMode) fprintf(stdout, "test %5d:\t%s\t%s\t%d", tpCount, tv->input, 
 		tv->output, tv->faults_count);
@@ -436,13 +436,15 @@ void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv, int tpCount)
 	{
 		fprintf(stdout, "\t{");
 		int K;
-		for(K = 0; K < tv->faults_count; K++)
+
+		for(K = 0; K < tv->faults_count; K++){
 			if(tv->faults_list[K]->indexOut < 0)
 				fprintf(stdout, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
 					tv->faults_list[K]->type);
 			else
 				fprintf(stdout, " (%s->%s, %d)", circuit[tv->faults_list[K]->index]->name, 
 					circuit[tv->faults_list[K]->indexOut]->name, tv->faults_list[K]->type);
+		}
 		fprintf(stdout, " }\n");
 	}
 }

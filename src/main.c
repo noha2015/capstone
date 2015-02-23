@@ -571,14 +571,56 @@ void random_test_generation(FILE* fp, int* testPatternCount)
  */
 void deterministic_test_generation(FILE* fp, int* testPatternCount)
 {
+
     SIM_RESULT simResults;
     BOOLEAN results;
-    int K, L;
+    
     TEST_VECTOR testVector;
+ 
+    int K, L;
+    //TEST_VECTOR testVector2;
     //SIM_RESULT simResults;
+
+    
     for(K = 0; K < faultList.count; K++)
     {
+    	// Count test pattern
+            (*testPatternCount)++;  
+
         if(faultList.list[K]->detected == TRUE) continue;
+
+        clearPropagationValuesCircuit(circuit, info.numGates);
+ 	
+        results = excite(circuit, faultList.list[K]->index, faultList.list[K]->indexOut, 
+                            (faultList.list[K]->type == ST_1? B : D));
+        if(results == FALSE) continue;
+
+        //................................ADDED.........................................
+
+        extractTestVector(circuit, &info, &testVector); //changed
+
+        testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
+		testVector.faults_list[0]->index 	= faultList.list[K]->index;
+		testVector.faults_list[0]->indexOut = faultList.list[K]->indexOut;
+		testVector.faults_list[0]->type 	= faultList.list[K]->type;
+
+        displayTestVector(circuit, &testVector, *testPatternCount);
+
+
+        //simulateTestVector(circuit, &info, &faultList, &testVector, K+1); // is this needed, not sure!
+
+       
+        //faultList.list[K]->type == ST_1?  faultList.list[K]->type = ST_0 : faultList.list[K]->type = ST_1; // switching the fault
+
+        if (faultList.list[K] -> type == ST_1) 
+
+        	faultList.list[K]->type = ST_0;
+
+        else
+
+        	faultList.list[K]->type = ST_1;
+
+        
 
         clearPropagationValuesCircuit(circuit, info.numGates);
 
@@ -586,11 +628,13 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
                             (faultList.list[K]->type == ST_1? B : D));
         if(results == FALSE) continue;
 
+        
+
         results = propagate(circuit, faultList.list[K]->index, faultList.list[K]->indexOut,
                             (faultList.list[K]->type == ST_1? B : D));
         if(results == TRUE)
         {
-            extractTestVector(circuit, &info, &testVector);
+            extractTestVector(circuit, &info, &testVector);  //change to testVector2
 
             // Add the current fault into the patterns fault list
             testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
@@ -599,19 +643,22 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
             testVector.faults_list[0]->type     = faultList.list[K]->type;
 
             // Simulate other faults in the remaining fault list if fault collapsing is allowed
-            //if(options.isOneTestPerFault == FALSE)
-            simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
+            if(options.isOneTestPerFault == FALSE)
+				simulateTestVector(circuit, &info, &faultList, &testVector, K+1); 
 
             // Compute all output gate values for the pattern
-            clearPropagationValuesCircuit(circuit, info.numGates);
+            //clearPropagationValuesCircuit(circuit, info.numGates);
             simResults = generate_output(circuit, &info, testVector.input);
             strcpy(testVector.output, simResults.output);
 
-            // Count test pattern
-            (*testPatternCount)++;
-
             // Display and save results
-            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &testVector, *testPatternCount);
+            if(options.isDebugMode && options.debugLevel > 0) {
+
+            	displayTestVector(circuit, &testVector, *testPatternCount);   // clear list perhaps
+            	//displayTestVector(circuit, &testVector, *testPatternCount);
+
+            }
+
             saveTestVector(circuit, &testVector, fp, *testPatternCount);
 
             // Clear the faults list memory for this pattern
@@ -653,7 +700,7 @@ void generate_test_patterns()
 
     // Perform random test pattern generation
     int testPatternCount = 0;
-    random_test_generation(fp, &testPatternCount);
+    //random_test_generation(fp, &testPatternCount);
 
     printf("-->\n");
 
