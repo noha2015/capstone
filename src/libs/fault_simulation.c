@@ -32,6 +32,8 @@
 #include "parser_netlist.h"
 #include "pqueue.h"
 
+#include <stdarg.h>
+
 
 /*
  *  Generates output gates output from the given pattern
@@ -159,7 +161,7 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
  *  @param  inPattern - input gates' values
  *  @return SIM_RESULTS the simulation results
  */
-SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
+SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern, ...)
 {
 	SIM_RESULT results;
 
@@ -242,6 +244,49 @@ SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 		results.input[K] = logicName(circuit[info->inputs[K]]->value, TRUE);
 	results.input[K] = '\0';
 
+	//A function that adds a parameter to the current function if needed
+
+	va_list ap;
+
+	BOOLEAN isExtracting = FALSE;
+	FAULT_LIST* fl = NULL;
+
+	va_start (ap, inPattern);
+
+	isExtracting = va_arg (ap, BOOLEAN);
+	fl = va_arg (ap, FAULT_LIST*);
+	va_end(ap);
+
+// Checking if the given pattern can excite more faults in the list
+
+	if (isExtracting == TRUE)
+	{
+		int m;
+		for (m = 0; m < fl -> count; m++)
+		{
+			if (fl-> list[m]-> type == ST_0)
+			{
+				if (circuit[fl ->list[m] -> index] -> value == I || circuit[fl ->list[m] -> index] -> value == D ) 
+				{ 
+					fl->list[m] -> check = TRUE;
+					//printf("EXTRAAAAAAAAACTTTTTTTT\n");
+				}
+				else 
+					fl->list[m] -> check = FALSE ;
+			}
+			else //if the type is ST_1
+			{
+				if (circuit[fl ->list[m] -> index] -> value == O || circuit[fl ->list[m] -> index] -> value == B ) 
+				{
+					fl->list[m] -> check = TRUE;
+					//printf("EXTRAAAAAAAAACTTTTTTTT\n");
+				}
+				else 
+					fl->list[m] -> check = FALSE ;
+			}
+		}
+
+	}
 	return results;
 }
 
@@ -262,6 +307,8 @@ int cmpGateLevels(const void *lg, const void *rg)
 	else return 1;
 }
 
+
+
 /*  Simulates a given test vector to drop all the faults that can be detected
  *  using it.
  *
@@ -270,10 +317,11 @@ int cmpGateLevels(const void *lg, const void *rg)
  *  @param  fList 	- fault list object
  *  @param  tv 		- test vector object
  *  @param  start 	- starting point in the fault list
+ *  @param  isChecked	- if the current fault is flagged as true for being excited 
  *  @return nothing
  */
 void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
-						TEST_VECTOR* tv, int start)
+						TEST_VECTOR* tv, int start, BOOLEAN isChecked)
 {	
 	// Remove Don't-Cares
 	int K;
@@ -304,6 +352,8 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 	//printf("\nSimulate %s stuck at %d\n", circuit[fList->list[K]->index]->name, fList->list[K]->type);
 	for(K = start; K < fList->count; K++)
 	{
+		if (isChecked && fList->list[K]->check == FALSE) continue;
+
 		if(fList->list[K]->detected == FALSE)
 		{
 			// Prepare the circuit for simulation

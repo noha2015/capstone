@@ -512,7 +512,7 @@ void parse_fault_from_file(char* filename)
  *  
  *  @return nothing
  */
-void random_test_generation(FILE* fp, int* testPatternCount)
+void random_test_generation(FILE* fp, int* testPatternCount, BOOLEAN isCheckedFault)
 {
     SIM_RESULT simResults;
     TEST_VECTOR tv;
@@ -541,7 +541,7 @@ void random_test_generation(FILE* fp, int* testPatternCount)
 
         // Simulate the pattern
         tv.faults_count = 0;
-        simulateTestVector(circuit, &info, &faultList, &tv, 0);
+        simulateTestVector(circuit, &info, &faultList, &tv, 0, isCheckedFault);
 
         if(tv.faults_count == 0) noPatternsCount++;
         else
@@ -564,12 +564,23 @@ void random_test_generation(FILE* fp, int* testPatternCount)
     }
 }    
 
+
+/*
+ *  Check all faults that can be excited by the given test pattern
+ *  
+ *  @return nothing
+ */
+void check_faultlist_justified(TEST_VECTOR* tv)
+{
+
+}
+
 /*
  *  Generates test patterns deterministically
  *  
  *  @return nothing
  */
-void deterministic_test_generation(FILE* fp, int* testPatternCount)
+ void deterministic_test_generation(FILE* fp, int* testPatternCount)
 {
 
     SIM_RESULT simResults;
@@ -597,7 +608,18 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
 
         //................................ADDED.........................................
 
+        
+
         extractTestVector(circuit, &info, &testVector); //changed
+
+        srand(time(NULL));
+     
+        for(L = 0; L < info.numPI; L++)
+            if( testVector.input[L] == 'x')
+            {
+                if(rand() % 2)  testVector.input[L] = '1';
+                else testVector.input[L] = '0';
+            }
 
         testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
 		testVector.faults_list[0]->index 	= faultList.list[K]->index;
@@ -605,6 +627,8 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
 		testVector.faults_list[0]->type 	= faultList.list[K]->type;
 
         displayTestVector(circuit, &testVector, *testPatternCount);
+
+        generate_output(circuit, &info, testVector.input, TRUE, &faultList);
 
 
         //simulateTestVector(circuit, &info, &faultList, &testVector, K+1); // is this needed, not sure!
@@ -621,7 +645,7 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
         	faultList.list[K]->type = ST_1;
 
 
-        random_test_generation(fp, &testPatternCount);
+        random_test_generation(fp, testPatternCount, TRUE);
 
         
 
@@ -651,7 +675,7 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
 
             // Simulate other faults in the remaining fault list if fault collapsing is allowed
             if(options.isOneTestPerFault == FALSE)
-				simulateTestVector(circuit, &info, &faultList, &testVector, K+1); 
+				simulateTestVector(circuit, &info, &faultList, &testVector, K+1, FALSE); 
 
             // Compute all output gate values for the pattern
             //clearPropagationValuesCircuit(circuit, info.numGates);
@@ -710,7 +734,7 @@ void generate_test_patterns()
 
     // Perform random test pattern generation
     int testPatternCount = 0;
-    //random_test_generation(fp, &testPatternCount);
+    //random_test_generation(fp, &testPatternCount, FALSE);
 
     printf("-->\n");
 

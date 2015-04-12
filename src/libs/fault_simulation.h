@@ -48,7 +48,7 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
  *  @param  inPattern - input gates' values
  *  @return SIM_RESULTS the simulation results
  */
-SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern);
+SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern, ...);
 
 
 /*
@@ -73,6 +73,6 @@ int cmpGateLevels(const void *lg, const void *rg);
  *  @return nothing
  */
 void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
-						TEST_VECTOR* tv, int start);
+						TEST_VECTOR* tv, int start, BOOLEAN isChecked);
 
 #endif
