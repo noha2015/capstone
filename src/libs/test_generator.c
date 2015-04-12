@@ -210,10 +210,10 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	/*
-	printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val, FALSE), 
-			logicName(circuit[index]->value, FALSE));
-	*/
+	
+	//printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val, FALSE), 
+			logicName(circuit[index]->value, FALSE);
+	
 
 	// A Primary Input can be justified for any value
 	if(circuit[index]->type == PI)
@@ -238,8 +238,12 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		return (justify(circuit, circuit[index]->in[0], just_value));
 	}
 
+
+
 	// Check if the current gate's output cannot be justified from its inputs
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
+
+	//printf("1111111: %d NAND %d = %d\n", circuit[circuit[index] -> in[0]] -> value, circuit[circuit[index] -> in[1]] -> value, result);
 	while(result != log_val)
 	{
 		// Check if it is possible to justify if the Don't-Cares were manipulated
@@ -251,6 +255,8 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		}
 		else break;
 	}
+
+	//printf("22222222\n");
 
 	// Justify the current gate's inputs
 	int inLine = 0;
@@ -316,10 +322,15 @@ BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 	BOOLEAN results;
 	if(circuit[index]->PO == TRUE)
 	{
+		//printf("name of gate: ---%s, value ----%d\n",circuit[index]->name, circuit[index]->value );
+
 		results = justify(circuit, index, log_val);
 		if(results == FALSE) 
 		{
+			//printf("------ Failed Justification gate: %s\n", circuit[index]->name);
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
+			//printf("3333333333333333\n");
+			//exit (0);
 		}
 		circuit[index]->propagated[log_val].state = TRUE;
 		circuit[index]->propagated[log_val].value = results;

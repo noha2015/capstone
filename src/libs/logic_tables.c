@@ -33,6 +33,10 @@
  */
 inline LOGIC_VALUE getLogicValue( CIRCUIT circuit, int index, int inPos)
 {
+	return circuit[circuit[index]->in[inPos]]->value;
+
+	// TODO: Check the necessity of this
+
 	int L;
 	if(circuit[circuit[index]->in[inPos]]->numOut > 1)
 	{
@@ -87,17 +91,23 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 			K = 0;
 			//printf("\n\tYees (%s): ", circuit[index]->name);
 			result = getLogicValue(circuit, index, K);
+			//printf("inside1 %d\n", result);
 			while(++K < circuit[index]->numIn)
-			{	
+			{	 
 				//printf("[%c,", logicName(result, FALSE));
 				temp = getLogicValue(circuit, index, K);
+				//printf("ddddd %d\n", K); 
 				//printf("%c]=", logicName(temp, FALSE));
 				result = TABLE_AND[result][temp];
 				//printf("%c, ", logicName(result, FALSE));
+				//printf("eeeee %d\n", result); 
 			}
 
-			if(circuit[index]->inv == TRUE)	// NAND Gate
+			if(circuit[index]->inv == TRUE)	{// NAND Gate
+				//printf("inside %d\n", result);
 				return negate(result, TRUE);
+
+			}
 			else	// AND Gate
 				return result;
 		case OR:
@@ -134,6 +144,8 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 {
 	int K;
+	int m;
+	
 	BOOLEAN result = FALSE;
 
 	// Check if there are any Don't-Cares to manipulate and set them to their probable values
@@ -150,11 +162,49 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 						setInputLogicValue(circuit, index, K, O);
 						return TRUE;
 					}
-					if(circuit[index]->inv == TRUE && (output == I || output == D))
+					if(circuit[index]->inv == TRUE )  // && (output == I || output == D))
 					{
-						setInputLogicValue(circuit, index, K, O);
-						return TRUE;
+						if(output == I || output == D)
+						{
+							//setInputLogicValue(circuit, index, K, O);  
+
+							
+							//try going through all inputs.
+							for(m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == X)
+								{
+									setInputLogicValue(circuit, index, m, O);
+								}
+							}
+							
+							return TRUE;
+						}
+
+						else // for B or O output
+						{
+							// Check for impossibility case, when you have a 0 or a B in the inputs
+							for (m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == O || circuit[circuit[index] -> in[m]] -> value == B)
+								{
+									return FALSE;
+								}
+							}
+
+							// if the output is X is then proceed to make all input gates 1
+							for(m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == X)
+								{
+									setInputLogicValue(circuit, index, m, I);
+								}
+							}
+
+							return TRUE;
+						}
 					}
+
 				}
 				if(circuit[index]->type == OR)
 				{

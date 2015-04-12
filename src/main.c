@@ -620,6 +620,9 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
 
         	faultList.list[K]->type = ST_1;
 
+
+        random_test_generation(fp, &testPatternCount);
+
         
 
         clearPropagationValuesCircuit(circuit, info.numGates);
@@ -628,12 +631,16 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
                             (faultList.list[K]->type == ST_1? B : D));
         if(results == FALSE) continue;
 
-        
+        //extractTestVector(circuit, &info, &testVector); 
+        //displayTestVector(circuit, &testVector, *testPatternCount);
 
         results = propagate(circuit, faultList.list[K]->index, faultList.list[K]->indexOut,
                             (faultList.list[K]->type == ST_1? B : D));
+
+
         if(results == TRUE)
         {
+            //printf("1111111111111111111\n" );
             extractTestVector(circuit, &info, &testVector);  //change to testVector2
 
             // Add the current fault into the patterns fault list
@@ -667,6 +674,9 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
 
             // Mark the fault as detected
             faultList.list[K]->detected = TRUE;
+        }
+        else{
+            //printf("222222222222222\n" );
         }
     }
 }
