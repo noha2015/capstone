@@ -621,6 +621,7 @@ void check_faultlist_justified(TEST_VECTOR* tv)
                 else testVector.input[L] = '0';
             }
 
+
         testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
 		testVector.faults_list[0]->index 	= faultList.list[K]->index;
 		testVector.faults_list[0]->indexOut = faultList.list[K]->indexOut;
@@ -628,7 +629,9 @@ void check_faultlist_justified(TEST_VECTOR* tv)
 
         displayTestVector(circuit, &testVector, *testPatternCount);
 
-        generate_output(circuit, &info, testVector.input, TRUE, &faultList);
+        printf("2: " );
+
+        //generate_output(circuit, &info, testVector.input, TRUE, &faultList);
 
 
         //simulateTestVector(circuit, &info, &faultList, &testVector, K+1); // is this needed, not sure!
@@ -645,7 +648,7 @@ void check_faultlist_justified(TEST_VECTOR* tv)
         	faultList.list[K]->type = ST_1;
 
 
-        random_test_generation(fp, testPatternCount, TRUE);
+       //random_test_generation(fp, testPatternCount, TRUE);
 
         
 
