@@ -621,7 +621,7 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
         	faultList.list[K]->type = ST_1;
 
 
-        random_test_generation(fp, &testPatternCount);
+        //random_test_generation(fp, &testPatternCount);
 
         
 
