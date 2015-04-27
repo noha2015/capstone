@@ -66,12 +66,15 @@ inline void setInputLogicValue( CIRCUIT circuit, int index, int inIndex, LOGIC_V
 	int L;
 	if(circuit[circuit[index]->in[inIndex]]->numOut > 1)
 	{
+		// Set the fanout of interest
+		//printf("+++++in%s\n", circuit[circuit[index]->in[inIndex]]->name );
 		for(L = 0; L < circuit[circuit[index]->in[inIndex]]->numOut; L++)
 			if(circuit[circuit[index]->in[inIndex]]->out[L] == index) break;
 		circuit[circuit[index]->in[inIndex]]->values[L] = log_val;
 	}
-	else
-		circuit[circuit[index]->in[inIndex]]->value = log_val;
+		
+	// Set the gate's value
+	circuit[circuit[index]->in[inIndex]]->value = log_val;
 }
 
 /*
@@ -157,12 +160,30 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 			{
 				if(circuit[index]->type == AND)
 				{
-					if(circuit[index]->inv == FALSE && (output == O || output == B))
+					if(circuit[index]->inv == FALSE)  //If it is not an NAND gate
 					{
-						setInputLogicValue(circuit, index, K, O);
-						return TRUE;
+						if (output == O || output == B) //If the output is 0 or B
+						{
+							setInputLogicValue(circuit, index, K, O);
+							return TRUE;
+						}
+						else  							//If the output is 1 or D
+						{
+							for(m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == X)
+								{
+									//printf("++++inside: %s\n", circuit[circuit[index] -> in[m]] -> name);
+									setInputLogicValue(circuit, index, m, I);
+								}
+							}
+							return TRUE;
+						}
+
 					}
-					if(circuit[index]->inv == TRUE )  // && (output == I || output == D))
+
+
+					if(circuit[index]->inv == TRUE )  // If it is an NAND Gate
 					{
 						if(output == I || output == D)
 						{
