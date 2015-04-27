@@ -647,10 +647,7 @@ void check_faultlist_justified(TEST_VECTOR* tv)
 
         	faultList.list[K]->type = ST_1;
 
-
-       //random_test_generation(fp, testPatternCount, TRUE);
-
-        
+       //random_test_generation(fp, testPatternCount, TRUE);   
 
         clearPropagationValuesCircuit(circuit, info.numGates);
 

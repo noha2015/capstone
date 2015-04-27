@@ -212,7 +212,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
 	
 	//printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val, FALSE), 
-			logicName(circuit[index]->value, FALSE);
+	//		logicName(circuit[index]->value, FALSE));
 	
 
 	// A Primary Input can be justified for any value
@@ -246,14 +246,22 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	//printf("1111111: %d NAND %d = %d\n", circuit[circuit[index] -> in[0]] -> value, circuit[circuit[index] -> in[1]] -> value, result);
 	while(result != log_val)
 	{
-		// Check if it is possible to justify if the Don't-Cares were manipulated
+		// Check if it is possible to justify if the Don't-Cares were manipulated		
 		if(isOutputPossible(circuit, index, log_val) == FALSE)
 		{
+			//printf("--****----failed one(%s in[%s:%c, %s:%c]): \n", circuit[index]->name, 
+			//	circuit[circuit[index]->in[0]]->name, logicName(circuit[circuit[index]->in[0]]->value, FALSE), 
+			//	circuit[circuit[index]->in[1]]->name, logicName(circuit[circuit[index]->in[1]]->value, FALSE));
 			circuit[index]->justified[log_val].state = TRUE;
 			circuit[index]->justified[log_val].value = FALSE;
 			return FALSE;
 		}
-		else break;
+		else {
+			//printf("--****----failed one after(%s in[%s:%c, %s:%c]): \n", circuit[index]->name, 
+			//	circuit[circuit[index]->in[0]]->name, logicName(circuit[circuit[index]->in[0]]->value, FALSE), 
+			//	circuit[circuit[index]->in[1]]->name, logicName(circuit[circuit[index]->in[1]]->value, FALSE));
+			break;
+		}
 	}
 
 	//printf("22222222\n");
@@ -265,6 +273,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		{
 			circuit[index]->justified[log_val].state = TRUE;
 			circuit[index]->justified[log_val].value = FALSE;
+			//printf ("--****----failed two\n");
 			return FALSE;
 		}
 	return TRUE;
@@ -327,7 +336,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 		results = justify(circuit, index, log_val);
 		if(results == FALSE) 
 		{
-			//printf("------ Failed Justification gate: %s\n", circuit[index]->name);
+			printf("------ Failed Justification gate: %s\n", circuit[index]->name);
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
 			//printf("3333333333333333\n");
 			//exit (0);
