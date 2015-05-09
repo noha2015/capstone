@@ -261,7 +261,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	// Check if the current gate's output cannot be justified from its inputs
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
 
-	printf("1111111: %d NAND %d = %d\n", circuit[circuit[index] -> in[0]] -> value, circuit[circuit[index] -> in[1]] -> value, result);
+	//printf("1111111: %d NAND %d = %d\n", circuit[circuit[index] -> in[0]] -> value, circuit[circuit[index] -> in[1]] -> value, result);
 	while(result != log_val)
 	{
 		// Check if it is possible to justify if the Don't-Cares were manipulated		
@@ -366,7 +366,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 		results = justify(circuit, index, log_val);
 		if(results == FALSE) 
 		{
-			printf("------ Failed Justification gate: %s\n", circuit[index]->name);
+			//printf("------ Failed Justification gate: %s\n", circuit[index]->name);
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
 			//printf("3333333333333333\n");
 			//exit (0);

@@ -687,7 +687,7 @@ void check_faultlist_justified(TEST_VECTOR* tv)
             // Display and save results
             if(options.isDebugMode && options.debugLevel > 0) {
 
-                printf("2: " );
+                //printf("2: " );
 
             	displayTestVector(circuit, &testVector, *testPatternCount);   // clear list perhaps
             	//displayTestVector(circuit, &testVector, *testPatternCount);
