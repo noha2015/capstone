@@ -229,18 +229,70 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 				}
 				if(circuit[index]->type == OR)
 				{
-					if(circuit[index]->inv == FALSE && (output == I || output == D))
+					if(circuit[index]->inv == FALSE)
 					{
-						setInputLogicValue(circuit, index, K, I);
-						return TRUE;
+						if (output == I || output == D)
+						{
+							setInputLogicValue(circuit, index, K, I);
+							return TRUE;
+						}
+
+						else
+						{
+							for(m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == X)
+								{
+									//printf("++++inside: %s\n", circuit[circuit[index] -> in[m]] -> name);
+									setInputLogicValue(circuit, index, m, O);
+								}
+							}
+							return TRUE;
+						}	
 					}
-					if(circuit[index]->inv == FALSE && (output == O || output == B))
+					if(circuit[index]->inv == FALSE)
 					{
-						setInputLogicValue(circuit, index, K, I);
-						return TRUE;
+						if (output == O || output == B)
+						{
+							for(m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == X)
+								{
+									setInputLogicValue(circuit, index, m, I);
+								}
+							}
+							
+							return TRUE;
+						}
+
+						else // for B or O output
+						{
+							// Check for impossibility case, when you have a 0 or a B in the inputs
+							for (m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == I || circuit[circuit[index] -> in[m]] -> value == D)
+								{
+									return FALSE;
+								}
+							}
+
+							// if the output is X is then proceed to make all input gates 1
+							for(m = 0; m < circuit[index] -> numIn; m++)
+							{
+								if (circuit[circuit[index] -> in[m]] -> value == X)
+								{
+									setInputLogicValue(circuit, index, m, O);
+								}
+							}
+
+							return TRUE;
+						}
 					}
 				}
 			}
+					
+
+			
 
 			// Other cases
 			result = TRUE;
