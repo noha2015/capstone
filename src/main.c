@@ -658,6 +658,8 @@ void check_faultlist_justified(TEST_VECTOR* tv)
         //extractTestVector(circuit, &info, &testVector); 
         //displayTestVector(circuit, &testVector, *testPatternCount);
 
+        circuit[faultList.list[K]->index]->isFaulty = TRUE;
+
         results = propagate(circuit, faultList.list[K]->index, faultList.list[K]->indexOut,
                             (faultList.list[K]->type == ST_1? B : D));
 

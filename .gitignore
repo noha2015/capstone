@@ -1,6 +1,9 @@
 # Binary files
 bin/
 
+# test vector results
+*.tvl
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

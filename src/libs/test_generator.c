@@ -75,6 +75,9 @@ void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates)
 		// Clear main segment
 		circuit[index]->value = X;
 
+		// Clear faulty gate mark
+		circuit[index]->isFaulty = FALSE;
+
 		// Clear fan out segments
 		if(circuit[index]->numOut > 1)
 			for(J = 0; J < circuit[index]->numOut; J++)
@@ -103,16 +106,17 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 
 	int K, L;
 	// Excite fanout segments if available
+	log_val  = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
 	if(circuit[index]->numOut > 1 && indexOut >= 0)
 	{
 		for(K = 0; K < circuit[index]->numOut; K++)
 			if(circuit[index]->out[K] != indexOut)
-				circuit[index]->values[K] = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
-		circuit[index]-> value = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+				circuit[index]->values[K] = log_val; //(log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+		circuit[index]-> value = log_val; //(log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
 
 		// Continue justifying the main segment
 		indexOut = -1;
-		log_val  = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+		//log_val  = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
 
 		/*
 		if(indexOut < 0)
@@ -196,6 +200,18 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 	return FALSE;
 }
 
+void printGateDetails(CIRCUIT circuit, int index){
+	printf("\t--->Name(%s), value(%c)", circuit[index]->name, logicName(circuit[index]->value, FALSE));
+
+	int K;
+	printf(", in{");
+	for(K = 0; K < circuit[index]->numIn; K++) printf("%s, ", circuit[circuit[index]->in[K]]->name);
+	printf("}, out{");
+	for(K = 0; K < circuit[index]->numOut; K++) printf("%s, ", circuit[circuit[index]->out[K]]->name);
+	printf("}\n");
+
+}
+
 /*
  *  Justifies to the primary input the value given to a circuit line
  *
@@ -211,8 +227,10 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
 	
-	//printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val, FALSE), 
-	//		logicName(circuit[index]->value, FALSE));
+	printf("---Justify(%s with '%c' found %c): ", circuit[index]->name, logicName(log_val, FALSE), 
+			logicName(circuit[index]->value, FALSE));
+
+	printGateDetails(circuit, index);
 	
 
 	// A Primary Input can be justified for any value
@@ -243,18 +261,28 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	// Check if the current gate's output cannot be justified from its inputs
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
 
-	//printf("1111111: %d NAND %d = %d\n", circuit[circuit[index] -> in[0]] -> value, circuit[circuit[index] -> in[1]] -> value, result);
+	printf("1111111: %d NAND %d = %d\n", circuit[circuit[index] -> in[0]] -> value, circuit[circuit[index] -> in[1]] -> value, result);
 	while(result != log_val)
 	{
 		// Check if it is possible to justify if the Don't-Cares were manipulated		
 		if(isOutputPossible(circuit, index, log_val) == FALSE)
 		{
-			//printf("--****----failed one(%s in[%s:%c, %s:%c]): \n", circuit[index]->name, 
-			//	circuit[circuit[index]->in[0]]->name, logicName(circuit[circuit[index]->in[0]]->value, FALSE), 
-			//	circuit[circuit[index]->in[1]]->name, logicName(circuit[circuit[index]->in[1]]->value, FALSE));
-			circuit[index]->justified[log_val].state = TRUE;
-			circuit[index]->justified[log_val].value = FALSE;
-			return FALSE;
+			printf("--****----failed one(%s in[%s:%c, %s:%c]): \n", circuit[index]->name, 
+				circuit[circuit[index]->in[0]]->name, logicName(circuit[circuit[index]->in[0]]->value, FALSE), 
+				circuit[circuit[index]->in[1]]->name, logicName(circuit[circuit[index]->in[1]]->value, FALSE));
+
+			// Check if the current gate is the faulty one and ignore the fault
+			if (circuit[index]->isFaulty && ((result == I && log_val == D) || (result == O && log_val == B))){
+				circuit[index]->justified[log_val].state = TRUE;
+				circuit[index]->justified[log_val].value = TRUE;
+				return TRUE;
+			}
+			else
+			{
+				circuit[index]->justified[log_val].state = TRUE;
+				circuit[index]->justified[log_val].value = FALSE;
+				return FALSE;
+			}
 		}
 		else {
 			//printf("--****----failed one after(%s in[%s:%c, %s:%c]): \n", circuit[index]->name, 
@@ -291,13 +319,15 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 {
-	/*
+	
 	if(indexOut < 0)
-		printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val, FALSE));
+		printf("Propagate(%s with '%c') indexout: %s", circuit[index]->name, logicName(log_val, FALSE), circuit[indexOut]->name);
 	else
-		printf("Propagate(%s->%s with '%c')\n", circuit[index]->name,
-				circuit[indexOut]->name, logicName(log_val, FALSE));
-	*/
+		printf("Propagate(%s->%s with '%c') indexout:%s", circuit[index]->name,
+				circuit[indexOut]->name, logicName(log_val, FALSE), circuit[indexOut]->name);
+	
+	printGateDetails(circuit, index);
+	
 
 	int K;
 

@@ -210,7 +210,10 @@ typedef struct
     LOGIC_VALUE values[MAX_OUTPUT_GATES];
 
     // Gate level from the inputs
-    int level;          
+    int level;      
+
+    // Mark a faulty gate
+    BOOLEAN isFaulty;    
 } GATE;
 
 typedef GATE* CIRCUIT[MAX_GATES];   // A circuit is a graph of gates
