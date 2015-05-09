@@ -1,0 +1,76 @@
+Parsing: "test/benchmarks/test-0.bench"...
+Netlist file successfully parsed [ 0.0010 seconds ].
+
+Input gates:
+A  B  C  E  
+Output gates:
+L  
+
+Total Gates: 5
+
+Test Vectors:
+Format: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}
+
+-->
+test     1:	1011	x	1	{ (A, 0) }
+2: test     1:	0111	0	1	{ (A, 1) }
+test     2:	0011	x	1	{ (A, 1) }
+2: test     2:	1111	1	1	{ (A, 0) }
+test     3:	0111	x	1	{ (B, 0) }
+2: test     3:	1011	0	1	{ (B, 1) }
+test     4:	0011	x	1	{ (B, 1) }
+2: test     4:	1111	1	1	{ (B, 0) }
+test     5:	0111	x	1	{ (B->H, 0) }
+2: test     5:	0011	0	1	{ (B->H, 1) }
+test     6:	0011	x	1	{ (B->H, 1) }
+2: test     6:	1111	1	1	{ (B->H, 0) }
+test     7:	0111	x	1	{ (B->I, 0) }
+2: test     7:	x001	1	1	{ (B->I, 1) }
+test     8:	0011	x	1	{ (B->I, 1) }
+2: test     8:	0111	0	1	{ (B->I, 0) }
+test     9:	0111	x	1	{ (C, 0) }
+2: test     9:	0101	1	1	{ (C, 1) }
+test    10:	0101	x	1	{ (C, 1) }
+2: test    10:	0111	0	1	{ (C, 0) }
+test    11:	0111	x	1	{ (E, 0) }
+2: test    11:	11x0	0	1	{ (E, 1) }
+test    12:	0110	x	1	{ (E, 1) }
+2: test    12:	11x1	1	1	{ (E, 0) }
+test    13:	0111	1	1	{ (L, 0) }
+2: test    13:	11x0	0	1	{ (L, 1) }
+test    14:	0110	0	1	{ (L, 1) }
+2: test    14:	11x1	1	1	{ (L, 0) }
+test    15:	0011	x	1	{ (J, 0) }
+2: test    15:	0111	0	1	{ (J, 1) }
+test    16:	0111	x	1	{ (J, 1) }
+2: test    16:	0011	1	1	{ (J, 0) }
+test    17:	0111	x	1	{ (I, 0) }
+2: test    17:	0011	1	1	{ (I, 1) }
+test    18:	0011	x	1	{ (I, 1) }
+2: test    18:	0111	0	1	{ (I, 0) }
+test    19:	1101	x	1	{ (H, 0) }
+2: test    19:	0111	0	1	{ (H, 1) }
+test    20:	0101	x	1	{ (H, 1) }
+2: test    20:	1111	1	1	{ (H, 0) }
+test    21:	1101	x	1	{ (K, 0) }
+2: test    21:	0111	0	1	{ (K, 1) }
+test    22:	0101	x	1	{ (K, 1) }
+2: test    22:	1111	1	1	{ (K, 0) }
+
+Test vectors successfully generated [ 0.0010 seconds ].
+
+
+Total Patterns generated: 22
+
+Total faults:	22
+
+Detected faults:
+	Count:		22
+	Percentage:	100%
+
+Undetected faults:
+	Total count:	0
+	Percentage:		0%
+	Output file:	"test_patterns.tvl.flt"
+
+Program successfully executed!
